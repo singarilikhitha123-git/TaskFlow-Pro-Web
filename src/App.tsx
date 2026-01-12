@@ -1,33 +1,103 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+      {/* Navigation */}
+      <nav>
+        <div className="logo">TaskFlow Pro</div>
+        <ul className="nav-links">
+          <li>
+            <a href="#">Features</a>
+          </li>
+          <li>
+            <a href="#">Pricing</a>
+          </li>
+          <li>
+            <a href="#">About</a>
+          </li>
+          <li>
+            <a href="#">Contact</a>
+          </li>
+        </ul>
+        <div className="nav-buttons">
+          <button className="btn btn-outline">Login</button>
+          <button className="btn btn-primary">Sign Up Free</button>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="badge">✨ New: AI-Powered Task Management</div>
+        <h1>
+          Manage Tasks Like
+          <br />
+          Never Before
+        </h1>
         <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+          Streamline your workflow, boost productivity, and collaborate
+          seamlessly with your team using our powerful task management platform.
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+        <div className="hero-buttons">
+          <button className="btn btn-primary btn-large">
+            Get Started Free →
+          </button>
+          <button className="btn btn-outline btn-large">Watch Demo</button>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="features">
+        <div className="feature-card">
+          <div className="feature-icon">🚀</div>
+          <h3>Lightning Fast</h3>
+          <p>
+            Experience blazing-fast performance with our optimized platform
+            built for speed.
+          </p>
+        </div>
+        <div className="feature-card">
+          <div className="feature-icon">🔒</div>
+          <h3>Secure & Private</h3>
+          <p>
+            Your data is encrypted and protected with enterprise-grade security
+            measures.
+          </p>
+        </div>
+        <div className="feature-card">
+          <div className="feature-icon">🤝</div>
+          <h3>Team Collaboration</h3>
+          <p>
+            Work together seamlessly with real-time updates and team
+            communication tools.
+          </p>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="stats">
+        <div className="stat">
+          <div className="stat-number">10K+</div>
+          <div className="stat-label">Active Users</div>
+        </div>
+        <div className="stat">
+          <div className="stat-number">50M+</div>
+          <div className="stat-label">Tasks Completed</div>
+        </div>
+        <div className="stat">
+          <div className="stat-number">99.9%</div>
+          <div className="stat-label">Uptime</div>
+        </div>
+        <div className="stat">
+          <div className="stat-number">4.9★</div>
+          <div className="stat-label">User Rating</div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer>
+        <p>© 2025 TaskFlow Pro. All rights reserved.</p>
+      </footer>
     </>
   );
 }
