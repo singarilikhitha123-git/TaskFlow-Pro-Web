@@ -1,6 +1,19 @@
+import { useEffect, useState } from "react";
 import "./App.css";
+import { getTest } from "./services/api";
 
 function App() {
+  const [apiMessage, setApiMessage] = useState<string>("");
+  const [apiDate, setApiDate] = useState<string>("");
+
+  useEffect(() => {
+    async function fetchApi() {
+      const response = await getTest();
+      setApiMessage(response.message);
+      setApiDate(response.timestamp);
+    }
+    fetchApi();
+  }, []);
   return (
     <>
       {/* Navigation */}
@@ -29,15 +42,8 @@ function App() {
       {/* Hero Section */}
       <section className="hero">
         <div className="badge">✨ New: AI-Powered Task Management</div>
-        <h1>
-          Manage Tasks Like
-          <br />
-          Never Before
-        </h1>
-        <p>
-          Streamline your workflow, boost productivity, and collaborate
-          seamlessly with your team using our powerful task management platform.
-        </p>
+        <h1>{apiMessage}</h1>
+        <p>{apiDate}</p>
         <div className="hero-buttons">
           <button className="btn btn-primary btn-large">
             Get Started Free →
