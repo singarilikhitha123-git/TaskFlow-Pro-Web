@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { getTest } from "./services/api";
+import { getUser } from "./services/api";
+import { User } from "./services/api";
 
 function App() {
-  const [apiMessage, setApiMessage] = useState<string>("");
-  const [apiDate, setApiDate] = useState<string>("");
+  const [Users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     async function fetchApi() {
-      const response = await getTest();
-      setApiMessage(response.message);
-      setApiDate(response.timestamp);
+      const response = await getUser();
+      setUsers(response);
     }
+
     fetchApi();
   }, []);
   return (
@@ -42,8 +42,18 @@ function App() {
       {/* Hero Section */}
       <section className="hero">
         <div className="badge">✨ New: AI-Powered Task Management</div>
-        <h1>{apiMessage}</h1>
-        <p>{apiDate}</p>
+        <h1>
+          {Users.map((user) => (
+            <div key={user.id} className="user-card">
+              {user.firstName} {user.lastName}
+            </div>
+          ))}
+        </h1>
+        <p>{Users[0]?.email}</p>
+        <p>{Users[1]?.email}</p>
+        <p>{Users[2]?.email}</p>
+        <p>{Users[3]?.email}</p>
+        <p>{Users[4]?.email}</p>
         <div className="hero-buttons">
           <button className="btn btn-primary btn-large">
             Get Started Free →

@@ -5,8 +5,18 @@ interface TestResponse {
   timestamp: string;
 }
 
-export async function getTest(): Promise<TestResponse> {
-  const response = await fetch(`${API_URL}/test`, {
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getUser(): Promise<User[]> {
+  const response = await fetch(`${API_URL}/users`, {
     method: "GET",
   });
   return await response.json();
