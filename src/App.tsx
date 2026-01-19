@@ -45,14 +45,11 @@ function App() {
           {Users.map((user) => (
             <div key={user.id} className="user-card">
               {user.firstName} {user.lastName}
+              <p>{user.email}</p>
             </div>
           ))}
         </h1>
-        <p>{Users[0]?.email}</p>
-        <p>{Users[1]?.email}</p>
-        <p>{Users[2]?.email}</p>
-        <p>{Users[3]?.email}</p>
-        <p>{Users[4]?.email}</p>
+
         <div className="hero-buttons">
           <button className="btn btn-primary btn-large">
             Get Started Free →
