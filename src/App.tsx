@@ -16,7 +16,6 @@ function App() {
   }, []);
   return (
     <>
-      {/* Navigation */}
       <nav>
         <div className="logo">TaskFlow Pro</div>
         <ul className="nav-links">
