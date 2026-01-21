@@ -16,9 +16,30 @@ export interface User {
   updatedAt: string;
 }
 
+export interface CreateUserDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  IsActive?: boolean;
+}
+
 export async function getUser(): Promise<User[]> {
   const response = await fetch(`${API_URL}/users`, {
     method: "GET",
+  });
+  return await response.json();
+}
+
+export async function createUser(
+  userData: CreateUserDto,
+): Promise<TestResponse> {
+  const response = await fetch(`${API_URL}/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
   });
   return await response.json();
 }
