@@ -31,6 +31,21 @@ export async function getUser(): Promise<User[]> {
   return await response.json();
 }
 
+export async function deleteUser(id: string): Promise<any> {
+  await fetch(`${API_URL}/users/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function updateUser(
+  id: string,
+  userData: CreateUserDto,
+): Promise<void> {
+  await fetch(`${API_URL}/users/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(userData),
+  });
+}
 export async function createUser(
   userData: CreateUserDto,
 ): Promise<TestResponse> {

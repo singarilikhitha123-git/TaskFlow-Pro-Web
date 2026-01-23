@@ -14,12 +14,12 @@ import {
 } from "@mui/material";
 
 interface UserFormProps {
-  open: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+  opened: boolean;
+  Closed: () => void;
+  Successed: () => void;
 }
 
-export default function UserForm({ open, onClose, onSuccess }: UserFormProps) {
+export default function UserForm({ opened, Closed, Successed }: UserFormProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,7 +40,7 @@ export default function UserForm({ open, onClose, onSuccess }: UserFormProps) {
 
   const handleClose = () => {
     resetForm();
-    onClose();
+    Closed();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +60,7 @@ export default function UserForm({ open, onClose, onSuccess }: UserFormProps) {
         IsActive: isActive,
       });
       resetForm();
-      onSuccess();
+      Successed();
       handleClose();
     } catch (err) {
       setError("Failed to create user");
@@ -70,7 +70,7 @@ export default function UserForm({ open, onClose, onSuccess }: UserFormProps) {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={opened} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Create User</DialogTitle>
       <form onSubmit={handleSubmit} style={{ padding: "16px" }}>
         <DialogContent>

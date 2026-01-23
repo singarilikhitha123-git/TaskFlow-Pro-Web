@@ -9,15 +9,16 @@ function Users() {
   const [loading, setLoading] = useState<boolean>(false);
   const [openForm, setOpenForm] = useState<boolean>(false);
 
+  const fetchUsers = async () => {
+    setLoading(true);
+    const response = await getUser();
+    setUsers(response);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    async function fetchApi() {
-      setLoading(true);
-      const response = await getUser();
-      setUsers(response);
-      setLoading(false);
-    }
-    fetchApi();
-  }, [openForm]);
+    fetchUsers();
+  }, []);
 
   const handleOpen = () => {
     setOpenForm(true);
@@ -25,6 +26,10 @@ function Users() {
 
   const handleClose = () => {
     setOpenForm(false);
+  };
+
+  const handleSuccess = () => {
+    fetchUsers();
   };
 
   return (
@@ -36,8 +41,12 @@ function Users() {
       >
         Add User
       </Button>
-      <UserForm open={openForm} onSuccess={() => {}} onClose={handleClose} />
-      <UsersTable users={Users} loading={loading} />
+      <UserForm
+        opened={openForm}
+        Successed={handleSuccess}
+        Closed={handleClose}
+      />
+      <UsersTable users={Users} loading={loading} onRefresh={fetchUsers} />
     </>
   );
 }
