@@ -4,7 +4,13 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Chip } from "@mui/material";
 
 //Props are an object with 'users' property
-export function UsersTable({ users }: { users: User[] }) {
+export function UsersTable({
+  users,
+  loading,
+}: {
+  users: User[];
+  loading: boolean;
+}) {
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 250 },
     { field: "email", headerName: "Email", width: 200 },
@@ -33,7 +39,7 @@ export function UsersTable({ users }: { users: User[] }) {
   ];
   return (
     <div style={{ height: 400, width: "100%" }}>
-      <DataGrid rows={users} columns={columns} />
+      <DataGrid loading={loading} rows={users} columns={columns} />
     </div>
   );
 }
