@@ -1,5 +1,17 @@
 import { useState } from "react";
 import { createUser } from "../../services/api";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Switch,
+  TextField,
+} from "@mui/material";
 
 interface UserFormProps {
   open: boolean;
@@ -56,5 +68,70 @@ export default function UserForm({ open, onClose, onSuccess }: UserFormProps) {
       setLoading(false);
     }
   };
-  return <div></div>; // Placeholder return statement
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Create User</DialogTitle>
+      <form onSubmit={handleSubmit} style={{ padding: "16px" }}>
+        <DialogContent>
+          {error && <Alert severity="error">{error}</Alert>}
+          <Box display="flex" flexDirection="column" gap={2}>
+            <TextField
+              label="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              fullWidth
+              disabled={loading}
+            />
+            <TextField
+              label="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+              fullWidth
+              disabled={loading}
+            />
+            <TextField
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              fullWidth
+              disabled={loading}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              fullWidth
+              disabled={loading}
+            />
+            <Switch
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              disabled={loading}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} /> : null}
+          >
+            {loading ? "Creating..." : "Create"}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
 }
