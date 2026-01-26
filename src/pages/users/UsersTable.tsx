@@ -10,9 +10,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Icon,
+  IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+import UserForm from "./UserForm";
 
 interface UsersTableProps {
   users: User[];
@@ -26,6 +31,24 @@ export function UsersTable({ users, loading, onRefresh }: UsersTableProps) {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const [openEditForm, setOpenEditForm] = useState(false);
+  const [editUserData, setEditUserData] = useState<User | null>(null);
+
+  const handleEdit = (user: User) => {
+    setEditUserData(user);
+    setOpenEditForm(true);
+  };
+
+  const handleEditClose = () => {
+    setOpenEditForm(false);
+    setEditUserData(null);
+  };
+
+  const handleEditSuccess = () => {
+    setOpenEditForm(false);
+    setEditUserData(null);
+    onRefresh();
+  };
   const handleDelete = (user: User) => {
     setSelectedUser(user);
     setOpenDeleteDialog(true);
@@ -84,7 +107,18 @@ export function UsersTable({ users, loading, onRefresh }: UsersTableProps) {
       headerName: "Actions",
       width: 150,
       renderCell: (params) => (
-        <button onClick={() => handleDelete(params.row as User)}>Delete</button>
+        <>
+          <Tooltip title="Edit User">
+            <IconButton onClick={() => handleEdit(params.row as User)}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete User">
+            <IconButton onClick={() => handleDelete(params.row as User)}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </>
       ),
     },
   ];
@@ -94,7 +128,13 @@ export function UsersTable({ users, loading, onRefresh }: UsersTableProps) {
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid loading={loading} rows={users} columns={columns} />
       </div>
-
+      {/* Edit User Form Dialog */}
+      <UserForm
+        opened={openEditForm}
+        data={editUserData || undefined}
+        Closed={handleEditClose}
+        Successed={handleEditSuccess}
+      />
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={openDeleteDialog}
@@ -102,7 +142,7 @@ export function UsersTable({ users, loading, onRefresh }: UsersTableProps) {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Delete User</DialogTitle>
+        <DialogTitle>Delete</DialogTitle>
 
         <DialogContent>
           {/* Error Alert */}

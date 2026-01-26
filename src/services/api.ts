@@ -11,6 +11,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  password: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -21,7 +22,7 @@ export interface CreateUserDto {
   firstName: string;
   lastName: string;
   password: string;
-  IsActive?: boolean;
+  isActive?: boolean;
 }
 
 export async function getUser(): Promise<User[]> {
@@ -43,6 +44,9 @@ export async function updateUser(
 ): Promise<void> {
   await fetch(`${API_URL}/users/${id}`, {
     method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(userData),
   });
 }

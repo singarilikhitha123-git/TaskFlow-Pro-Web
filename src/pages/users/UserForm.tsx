@@ -1,5 +1,10 @@
-import { useState } from "react";
-import { createUser } from "../../services/api";
+import { useEffect, useState } from "react";
+import {
+  createUser,
+  CreateUserDto,
+  updateUser,
+  User,
+} from "../../services/api";
 import {
   Alert,
   Box,
@@ -17,9 +22,16 @@ interface UserFormProps {
   opened: boolean;
   Closed: () => void;
   Successed: () => void;
+  data?: User;
 }
 
-export default function UserForm({ opened, Closed, Successed }: UserFormProps) {
+export default function UserForm({
+  opened,
+  Closed,
+  Successed,
+  data,
+}: UserFormProps) {
+  const isEditMode = !!data; //bolean(data) to check if data is present converts to true or false
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,6 +40,18 @@ export default function UserForm({ opened, Closed, Successed }: UserFormProps) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (data) {
+      setFirstName(data.firstName || "");
+      setLastName(data.lastName || "");
+      setEmail(data.email || "");
+      setPassword(""); // Don't populate password for security
+      setIsActive(data.isActive ?? true);
+    } else {
+      resetForm();
+    }
+  }, [data]);
 
   const resetForm = () => {
     setFirstName("");
@@ -51,14 +75,23 @@ export default function UserForm({ opened, Closed, Successed }: UserFormProps) {
     try {
       setLoading(true);
       setError(null);
-
-      await createUser({
-        firstName,
-        lastName,
-        email,
-        password,
-        IsActive: isActive,
-      });
+      if (isEditMode && data) {
+        await updateUser(data.id, {
+          firstName,
+          lastName,
+          email,
+          password,
+          isActive: isActive,
+        });
+      } else {
+        await createUser({
+          firstName,
+          lastName,
+          email,
+          password,
+          isActive: isActive,
+        });
+      }
       resetForm();
       Successed();
       handleClose();
@@ -71,7 +104,7 @@ export default function UserForm({ opened, Closed, Successed }: UserFormProps) {
 
   return (
     <Dialog open={opened} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create User</DialogTitle>
+      <DialogTitle>{isEditMode ? "Edit User" : "Create User"}</DialogTitle>
       <form onSubmit={handleSubmit} style={{ padding: "16px" }}>
         <DialogContent>
           {error && <Alert severity="error">{error}</Alert>}
@@ -128,7 +161,13 @@ export default function UserForm({ opened, Closed, Successed }: UserFormProps) {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
           >
-            {loading ? "Creating..." : "Create"}
+            {loading
+              ? isEditMode
+                ? "Saving..."
+                : "Creating..."
+              : isEditMode
+                ? "Save"
+                : "Create"}
           </Button>
         </DialogActions>
       </form>
