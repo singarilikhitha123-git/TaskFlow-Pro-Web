@@ -36,6 +36,7 @@ export default function UserForm({
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,8 @@ export default function UserForm({
       setLastName(data.lastName || "");
       setEmail(data.email || "");
       setPassword(""); // Don't populate password for security
+      setPhoneNumber(data.phoneNumber);
+
       setIsActive(data.isActive ?? true);
     } else {
       resetForm();
@@ -58,6 +61,7 @@ export default function UserForm({
     setLastName("");
     setEmail("");
     setPassword("");
+    setPhoneNumber(0);
     setIsActive(true);
     setError(null);
   };
@@ -81,6 +85,7 @@ export default function UserForm({
           lastName,
           email,
           password,
+          phoneNumber,
           isActive: isActive,
         });
       } else {
@@ -89,6 +94,7 @@ export default function UserForm({
           lastName,
           email,
           password,
+          phoneNumber,
           isActive: isActive,
         });
       }
@@ -134,6 +140,14 @@ export default function UserForm({
               disabled={loading}
             />
             <TextField
+              label="Phone Number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(Number(e.target.value))}
+              required
+              fullWidth
+              disabled={loading}
+            />
+            <TextField
               label="Password"
               type="password"
               value={password}
@@ -142,6 +156,7 @@ export default function UserForm({
               fullWidth
               disabled={loading}
             />
+
             <Switch
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}

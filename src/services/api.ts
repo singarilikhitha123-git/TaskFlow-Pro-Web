@@ -12,6 +12,7 @@ export interface User {
   firstName: string;
   lastName: string;
   password: string;
+  phoneNumber: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -22,6 +23,7 @@ export interface CreateUserDto {
   firstName: string;
   lastName: string;
   password: string;
+  phoneNumber: number;
   isActive?: boolean;
 }
 

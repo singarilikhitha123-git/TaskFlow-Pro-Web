@@ -82,6 +82,7 @@ export function UsersTable({ users, loading, onRefresh }: UsersTableProps) {
     { field: "email", headerName: "Email", width: 200 },
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "lastName", headerName: "Last Name", width: 150 },
+    { field: "phoneNumber", headerName: "Phone Number", width: 150 },
     {
       field: "isActive",
       headerName: "Active",
