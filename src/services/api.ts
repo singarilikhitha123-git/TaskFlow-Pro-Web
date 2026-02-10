@@ -16,6 +16,8 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
 }
 
 export interface CreateUserDto {
@@ -25,6 +27,8 @@ export interface CreateUserDto {
   password: string;
   phoneNumber: number;
   isActive?: boolean;
+  profileImageUrl?: Boolean;
+  profileImagePublicId?: Boolean;
 }
 
 export async function getUser(): Promise<User[]> {

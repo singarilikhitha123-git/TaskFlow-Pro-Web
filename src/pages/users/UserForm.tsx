@@ -17,6 +17,7 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
+import ImageUpload from "../../components/ImageUpload";
 
 interface UserFormProps {
   opened: boolean;
@@ -42,6 +43,14 @@ export default function UserForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [profileImagePublicId, setProfileImagePublicId] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState("");
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
   useEffect(() => {
     if (data) {
       setFirstName(data.firstName || "");
@@ -51,10 +60,14 @@ export default function UserForm({
       setPhoneNumber(data.phoneNumber);
 
       setIsActive(data.isActive ?? true);
+
+      setProfileImageUrl(data.profileImageUrl || "");
+      setProfileImagePublicId(data.profileImagePublicId || "");
+      setImagePreview(data.profileImageUrl || "");
     } else {
       resetForm();
     }
-  }, [data]);
+  }, [data, opened]);
 
   const resetForm = () => {
     setFirstName("");
@@ -63,12 +76,72 @@ export default function UserForm({
     setPassword("");
     setPhoneNumber(0);
     setIsActive(true);
+    setProfileImagePublicId("");
+    setProfileImageUrl("");
+    setImagePreview("");
+    setImageFile(null);
     setError(null);
+    setUploadSuccess(false);
   };
 
   const handleClose = () => {
     resetForm();
     Closed();
+  };
+
+  const handleImageChange = (file: File | null) => {
+    if (file) {
+      setImageFile(file);
+      setError(null);
+      setUploadSuccess(false);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      setUploadingImage(true);
+      try {
+        const uploadResponse = await uploadingImage(file);
+
+        if (isEditMode && profileImagePublicId) {
+          try {
+            await deleteImage(profileImagePublicId);
+          } catch (err) {
+            console.error("failed");
+          }
+        }
+        setProfileImageUrl(uploadResponse.url);
+        setProfileImagePublicId(uploadResponse.publicId);
+
+        console.log("image uploaded", uploadResponse);
+      } catch (uploadErr: any) {
+        setError(uploadErr.response?.data?.message || "failed");
+        setImageFile(null);
+        setImagePreview("");
+      } finally {
+        setUploadingImage(false);
+      }
+    }
+    setError(null);
+  };
+
+  const handleRemoveImage = async () => {
+    // If editing and has existing image, delete from Cloudinary
+    if (isEditMode && profileImagePublicId) {
+      try {
+        await deleteImage(profileImagePublicId);
+      } catch (err) {
+        console.error("Failed to delete image:", err);
+      }
+    }
+
+    setImageFile(null);
+    setImagePreview("");
+    setProfileImageUrl("");
+    setProfileImagePublicId("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,6 +160,8 @@ export default function UserForm({
           password,
           phoneNumber,
           isActive: isActive,
+          profileImageUrl,
+          profileImagePublicId,
         });
       } else {
         await createUser({
@@ -156,11 +231,18 @@ export default function UserForm({
               fullWidth
               disabled={loading}
             />
-
             <Switch
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
               disabled={loading}
+            />
+            <ImageUpload
+              value={profileImageUrl}
+              onChange={handleImageChange}
+              onRemove={handleRemoveImage}
+              uploading={uploadingImage}
+              maxSize={5}
+              label="Profile Picture"
             />
           </Box>
         </DialogContent>
@@ -188,4 +270,14 @@ export default function UserForm({
       </form>
     </Dialog>
   );
+}
+function setImageFile(file: File) {
+  throw new Error("Function not implemented.");
+}
+
+function setImagePreview(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+function deleteImage(profileImagePublicId: any) {
+  throw new Error("Function not implemented.");
 }
