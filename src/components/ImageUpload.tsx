@@ -30,7 +30,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   label = "profile picture",
 }) => {
   const [dragActive, setDragActive] = useState(false);
-  const [preview, setPerview] = useState<string>(value || "");
+  const [preview, setPreview] = useState<string>(value || "");
 
   const validateFile = (file: File): string | null => {
     if (!file.type.startsWith("image/")) {
@@ -54,7 +54,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPerview(reader.result as string);
+        setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
       onChange(file);
@@ -92,7 +92,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   const handleRemove = () => {
-    setPerview("");
+    setPreview("");
     onChange(null);
     onRemove();
   };

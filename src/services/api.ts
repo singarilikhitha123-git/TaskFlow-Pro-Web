@@ -27,8 +27,13 @@ export interface CreateUserDto {
   password: string;
   phoneNumber: number;
   isActive?: boolean;
-  profileImageUrl?: Boolean;
-  profileImagePublicId?: Boolean;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
+}
+
+export interface ImageUploadResponse {
+  url: string;
+  publicId: string;
 }
 
 export async function getUser(): Promise<User[]> {
@@ -67,4 +72,33 @@ export async function createUser(
     body: JSON.stringify(userData),
   });
   return await response.json();
+}
+
+export async function uploadImage(file: File): Promise<ImageUploadResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(`${API_URL}/upload/image`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "failed");
+  }
+  return await response.json();
+}
+
+export async function deleteImage(publicId: string): Promise<void> {
+  const response = await fetch(`${API_URL}/upload/image`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ publicId }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed");
+  }
 }

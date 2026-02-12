@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   createUser,
-  CreateUserDto,
   updateUser,
+  uploadImage,
+  deleteImage,
   User,
 } from "../../services/api";
 import {
@@ -16,6 +17,7 @@ import {
   DialogTitle,
   Switch,
   TextField,
+  FormControlLabel,
 } from "@mui/material";
 import ImageUpload from "../../components/ImageUpload";
 
@@ -32,7 +34,8 @@ export default function UserForm({
   Successed,
   data,
 }: UserFormProps) {
-  const isEditMode = !!data; //bolean(data) to check if data is present converts to true or false
+  const isEditMode = !!data;
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -56,11 +59,9 @@ export default function UserForm({
       setFirstName(data.firstName || "");
       setLastName(data.lastName || "");
       setEmail(data.email || "");
-      setPassword(""); // Don't populate password for security
-      setPhoneNumber(data.phoneNumber);
-
+      setPassword("");
+      setPhoneNumber(data.phoneNumber || 0);
       setIsActive(data.isActive ?? true);
-
       setProfileImageUrl(data.profileImageUrl || "");
       setProfileImagePublicId(data.profileImagePublicId || "");
       setImagePreview(data.profileImageUrl || "");
@@ -89,13 +90,12 @@ export default function UserForm({
     Closed();
   };
 
-  const handleImageChange = (file: File | null) => {
+  const handleImageChange = async (file: File | null) => {
     if (file) {
       setImageFile(file);
       setError(null);
       setUploadSuccess(false);
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -104,32 +104,36 @@ export default function UserForm({
 
       setUploadingImage(true);
       try {
-        const uploadResponse = await uploadingImage(file);
+        console.log("Uploading image...");
+        const uploadResponse = await uploadImage(file);
+        console.log("Upload successful:", uploadResponse);
 
         if (isEditMode && profileImagePublicId) {
           try {
+            console.log("Deleting old image...");
             await deleteImage(profileImagePublicId);
           } catch (err) {
-            console.error("failed");
+            console.error("Failed to delete old image:", err);
           }
         }
+
         setProfileImageUrl(uploadResponse.url);
         setProfileImagePublicId(uploadResponse.publicId);
+        setUploadSuccess(true);
 
-        console.log("image uploaded", uploadResponse);
+        setTimeout(() => setUploadSuccess(false), 3000);
       } catch (uploadErr: any) {
-        setError(uploadErr.response?.data?.message || "failed");
+        console.error("Upload error:", uploadErr);
+        setError(uploadErr.message || "Image upload failed");
         setImageFile(null);
         setImagePreview("");
       } finally {
         setUploadingImage(false);
       }
     }
-    setError(null);
   };
 
   const handleRemoveImage = async () => {
-    // If editing and has existing image, delete from Cloudinary
     if (isEditMode && profileImagePublicId) {
       try {
         await deleteImage(profileImagePublicId);
@@ -145,39 +149,39 @@ export default function UserForm({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    //form events
     e.preventDefault();
 
-    // try catch finally block for error handling
     try {
       setLoading(true);
       setError(null);
+
+      const userData = {
+        firstName,
+        lastName,
+        email,
+        password,
+        phoneNumber,
+        isActive,
+        profileImageUrl,
+        profileImagePublicId,
+      };
+
+      // if (isEditMode && !userData.password) {
+      //   delete userData.password;
+      // }
+
       if (isEditMode && data) {
-        await updateUser(data.id, {
-          firstName,
-          lastName,
-          email,
-          password,
-          phoneNumber,
-          isActive: isActive,
-          profileImageUrl,
-          profileImagePublicId,
-        });
+        await updateUser(data.id, userData);
       } else {
-        await createUser({
-          firstName,
-          lastName,
-          email,
-          password,
-          phoneNumber,
-          isActive: isActive,
-        });
+        await createUser(userData);
       }
+
       resetForm();
       Successed();
       handleClose();
-    } catch (err) {
-      setError("Failed to create user");
+    } catch (err: any) {
+      console.error("Submit error:", err);
+      setError(err.message || "Failed to save user");
     } finally {
       setLoading(false);
     }
@@ -186,98 +190,119 @@ export default function UserForm({
   return (
     <Dialog open={opened} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{isEditMode ? "Edit User" : "Create User"}</DialogTitle>
-      <form onSubmit={handleSubmit} style={{ padding: "16px" }}>
+      <form onSubmit={handleSubmit}>
         <DialogContent>
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {uploadSuccess && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Image uploaded successfully!
+            </Alert>
+          )}
+
           <Box display="flex" flexDirection="column" gap={2}>
-            <TextField
-              label="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              fullWidth
-              disabled={loading}
-            />
-            <TextField
-              label="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              fullWidth
-              disabled={loading}
-            />
-            <TextField
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              fullWidth
-              disabled={loading}
-            />
-            <TextField
-              label="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(Number(e.target.value))}
-              required
-              fullWidth
-              disabled={loading}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              fullWidth
-              disabled={loading}
-            />
-            <Switch
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              disabled={loading}
-            />
             <ImageUpload
-              value={profileImageUrl}
+              value={imagePreview}
               onChange={handleImageChange}
               onRemove={handleRemoveImage}
               uploading={uploadingImage}
               maxSize={5}
               label="Profile Picture"
             />
+
+            <TextField
+              label="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              fullWidth
+              disabled={loading || uploadingImage}
+            />
+
+            <TextField
+              label="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+              fullWidth
+              disabled={loading || uploadingImage}
+            />
+
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              fullWidth
+              disabled={loading || uploadingImage}
+            />
+
+            <TextField
+              label="Phone Number"
+              type="number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(Number(e.target.value))}
+              required
+              fullWidth
+              disabled={loading || uploadingImage}
+            />
+
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required={!isEditMode}
+              fullWidth
+              disabled={loading || uploadingImage}
+              helperText={
+                isEditMode ? "Leave blank to keep current password" : ""
+              }
+            />
+
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  disabled={loading || uploadingImage}
+                />
+              }
+              label="Active"
+            />
           </Box>
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} disabled={loading}>
+          <Button onClick={handleClose} disabled={loading || uploadingImage}>
             Cancel
           </Button>
           <Button
             type="submit"
             variant="contained"
             color="primary"
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : null}
+            disabled={loading || uploadingImage}
+            startIcon={
+              (loading || uploadingImage) && <CircularProgress size={20} />
+            }
           >
-            {loading
-              ? isEditMode
-                ? "Saving..."
-                : "Creating..."
-              : isEditMode
-                ? "Save"
-                : "Create"}
+            {uploadingImage
+              ? "Uploading..."
+              : loading
+                ? isEditMode
+                  ? "Saving..."
+                  : "Creating..."
+                : isEditMode
+                  ? "Save"
+                  : "Create"}
           </Button>
         </DialogActions>
       </form>
     </Dialog>
   );
-}
-function setImageFile(file: File) {
-  throw new Error("Function not implemented.");
-}
-
-function setImagePreview(arg0: string) {
-  throw new Error("Function not implemented.");
-}
-function deleteImage(profileImagePublicId: any) {
-  throw new Error("Function not implemented.");
 }
