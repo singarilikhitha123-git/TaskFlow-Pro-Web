@@ -1,23 +1,30 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
 import Users from "./pages/users/Users";
-import "./App.css";
+import { isLoggedIn } from "./services/auth";
 
 function App() {
   return (
-    <div className="app">
-      {/* Header */}
-      <header className="header">
-        <div className="logo">TaskFlow Pro</div>
-        <div className="nav-buttons">
-          <button className="btn btn-outline">Login</button>
-          <button className="btn btn-primary">Sign Up</button>
-        </div>
-      </header>
+    <BrowserRouter>
+      <Routes>
+        {/* Login page */}
+        <Route index={true} path="/login" element={<Login />} />
 
-      {/* Main Content */}
-      <main className="main-content">
-        <Users />
-      </main>
-    </div>
+        {/* Protected Users page */}
+        <Route
+          path="/users"
+          element={isLoggedIn() ? <Users /> : <Navigate to="/login" />}
+        />
+
+        {/* Default redirect */}
+        <Route
+          path="/"
+          element={
+            isLoggedIn() ? <Navigate to="/users" /> : <Navigate to="/login" />
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
